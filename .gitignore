@@ -1,3 +1,5 @@
 .DS_STORE
-README.md
+backend/README.md
 node_modules
+backend/images
+frontend/.DS_STORE
