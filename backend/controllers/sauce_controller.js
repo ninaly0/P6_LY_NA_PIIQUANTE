@@ -1,5 +1,6 @@
 const Sauce = require('../models/Sauce_model');
 const fs = require('fs');
+const { log } = require('console');
 
 exports.createSauce = (req, res, next) => {
   // on récupère la string sauce avec req.body.sauce, et on la parse en Object
@@ -11,6 +12,7 @@ exports.createSauce = (req, res, next) => {
   const sauce = new Sauce({
     ...sauceObject,
     userId: req.auth.userId,
+    //modification de l'url de l'image
     // req.protocol = http, req.get('host') récupère le port
     imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
   });
@@ -21,13 +23,16 @@ exports.createSauce = (req, res, next) => {
 }
 
 exports.modifySauce = (req, res, next) => {
-  //Est ce qu'on a reçu une image ? Si oui, on la remplace, si non, on garde la même image
+  //Est ce qu'on a reçu une image ?
   const sauceObject = req.file ?
-    {
+  //Si oui, on la remplace et on créé une nouvelle imageUrl
+     {
       ...JSON.parse(req.body.sauce),
       imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-    } : { ...req.body }
-  Sauce.updateOne({_id: req.params.id}, { sauceObject, _id: req.params.id})
+      // si non, on garde la même image que dans le req.body
+     } : { ...req.body }
+     // et on update la sauce
+  Sauce.updateOne({_id: req.params.id}, { ...sauceObject, _id: req.params.id})
     .then(() => res.status(200).json({ message: 'La sauce a été modifié' }))
     .catch(error => res.status(400).json({ error }))
 }
